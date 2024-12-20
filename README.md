@@ -6,3 +6,4 @@
 
 - [ ] TODO: @alexanderilyin: Create `automathor plan` & `authomathor apply` commands.
   - Use `click`
+- Publish package to PyPi.
