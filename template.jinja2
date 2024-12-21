@@ -1,0 +1,15 @@
+- [`{{ context.filename }}:{{ context.line }}`]
+
+Added by {{ context.user() }} in [`{{ context.commit }}`] on {{ context.datetime.strftime('%d %b, %Y at %H:%M:%S')}}.
+
+```{{ context.language() }}
+{% for line in context.lines -%}
+{%- set prefix = " >" if context.line == line.line_number else "  " -%}
+{{ prefix }} {{ line.line_number }} {{ line.source_line }}
+{% endfor -%}
+```
+
+[`{{ context.commit }}`]: https://github.com/partcad/partcad/commit/{{ context.commit }}
+{## Short commit does not work here #}
+[`{{ context.filename }}:{{ context.line }}`]: https://github.com/partcad/partcad/blob/{{
+context.commit}}/{{context.filename}}#L{{ context.line}}

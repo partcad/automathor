@@ -1,0 +1,205 @@
+"""
+Annotates code lines with git blame info, renders templates, and processes TODO comments.
+
+Classes:
+  AnnotatedLine: Line of code with git blame info.
+  Context: Context for a code line, including git blame data.
+  Match: TODO comment match with methods to get git blame output.
+  Automathor: Finds TODO comments and generates annotated context.
+
+Functions:
+  run_git_grep: Finds TODO comments using git grep.
+  process_matches: Generates annotated context for TODO matches.
+
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import List
+import jinja2
+import json
+import logging
+import os
+import re
+import subprocess  # nosec B404
+
+# TODO: @alexanderilyin Make user mentions work
+# TODO: @alexanderilyin Show summary table
+
+
+@dataclass
+class AnnotatedLine:
+    """Line of code with git blame info."""
+
+    # TODO: @alexanderilyin Convert value to full commit hash
+    commit: str
+    filename: str
+    author_email: str
+    datetime: datetime
+    line_number: int
+    source_line: str
+
+
+@dataclass
+class Context:
+    """Context for a code line, including git blame data."""
+
+    filename: str
+    line: int
+    commit: str
+    author_email: str
+    datetime: datetime
+    todo: str
+    text: str
+    lines: List[AnnotatedLine]
+
+    def __repr__(self):
+        """Return a string representation of the context."""
+        return f"{self.filename}:{self.line}\n{self.author_email} {self.datetime}\n{self.commit}\n"
+
+    def render(self) -> str:
+        """Render the context as a markdown file."""
+        template_loader = jinja2.FileSystemLoader(searchpath="./")
+        template_env = jinja2.Environment(loader=template_loader, autoescape=True)
+        template = template_env.get_template("template.jinja2")
+
+        output = template.render(context=self)
+        return output
+
+    def user(self):
+        """Get the user for the author email."""
+        # TODO: @alexanderilyin: load users mapping from a file
+        if self.author_email == "ailin@partcad.org":
+            return "@ailin"
+        if self.author_email == "alexander@ilyin.eu":
+            return "@ailin"
+        if self.author_email == "openvmp@proton.me":
+            return "@rkuz"
+        if self.author_email == "not.committed.yet":
+            return "Not Committed"
+        if self.author_email == "clairbee@guidemaze.com":
+            return "@rkuz"
+        if self.author_email == "admin+github-admin@partcad.org":
+            return "@rkuz"
+        raise ValueError(f"Unknown user for email: {self.author_email}")
+
+    def language(self):
+        """Get the language of the file."""
+        # TODO: @alexanderilyin: load language mapping from a file
+        extensions = {
+            ".py": "python",
+            ".md": "markdown",
+            ".yaml": "yaml",
+            ".yml": "yaml",
+            ".json": "json",
+            ".feature": "gherkin",
+        }
+        for ext, lang in extensions.items():
+            if self.filename.endswith(ext):
+                return lang
+        raise ValueError(f"Unknown language for file: {self.filename}")
+
+
+@dataclass
+class Match:
+    """A match for a TODO comment in a file."""
+
+    file: str
+    line: int
+    text: str
+
+    def get_git_blame_output(self) -> Context:
+        """Get git blame output for a match."""
+        self.line = int(self.line)
+
+        start_line = max(1, self.line - 4)
+        end_line = self.line + 4
+        command = [
+            "git",
+            "blame",
+            "--show-email",
+            self.file,
+            f"-L{start_line},{end_line}",
+        ]
+        logging.debug(f"RUNNING {command}")
+        result = subprocess.run(command, capture_output=True, text=True)  # nosec B603
+        if result.returncode != 0:
+            raise RuntimeError(f"Command failed with error: {result.stderr}")
+
+        context = Context(self.file, self.line, None, None, None, None, None, [])
+        for line in result.stdout.strip().split("\n"):
+            logging.debug(f"PROCESSING {line}")
+            data = self.parse_line(line)
+            if data.line_number == self.line:
+                context.commit = data.commit
+                context.author_email = data.author_email
+                context.datetime = data.datetime
+                # TODO: @alexanderilyin: Process comment to extract nice text for summary
+                context.todo = self.text
+                context.text = self.text
+            context.lines.append(data)
+        return context
+
+    def parse_line(self, line: str) -> AnnotatedLine:
+        """Parse a line of git blame output."""
+        pattern = r"(\w+)\s+(\S+)\s+\(<([^>]+)>\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4})\s+(\d+)\)\s*(.*)"
+        match = re.match(pattern, line)
+        pattern_two = r"(\w+)\s+\(<([^>]+)>\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4})\s+(\d+)\)\s*(.*)"
+        match_two = re.match(pattern_two, line)
+        if match:
+            commit, filename, author_email, date_str, line_number, source_line = match.groups()
+            date_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %z")
+            return AnnotatedLine(commit, filename, author_email, date_time, int(line_number), source_line)
+
+        if match_two:
+            commit, author_email, date_str, line_number, source_line = match_two.groups()
+            date_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %z")
+            return AnnotatedLine(commit, self.file, author_email, date_time, int(line_number), source_line)
+
+        raise ValueError(f"Line does not match expected format: {line}")
+
+
+@dataclass
+class Automathor:
+    """Find TODO comments and generate context."""
+
+    grep: List[str] = field(default_factory=list)
+    matches: List[Match] = field(default_factory=list)
+
+    def run_git_grep(self) -> None:
+        """Run git grep to find TODO comments."""
+        command = ["git", "grep", "-n", "TODO"]
+        logging.debug(f"Running command: {' '.join(command)}")
+        result = subprocess.run(command, stdout=subprocess.PIPE, text=True)  # nosec B603
+        self.grep = result.stdout.strip().split("\n")
+
+    def process_matches(self) -> None:
+        """Process the matches from git grep."""
+        for line in self.grep:
+            self.matches.append(Match(*line.split(":", 2)))
+
+
+logging.basicConfig(level=logging.INFO)
+
+automathor = Automathor()
+automathor.run_git_grep()
+automathor.process_matches()
+i = 0
+metadata = {}
+os.makedirs("tmp", exist_ok=True)
+for i, match in enumerate(automathor.matches, start=1):
+    data = match.get_git_blame_output()
+    filename = f"tmp/{i}.md"
+    with open(filename, "w") as f:
+        f.write(data.render())
+        logging.info(f"Written {filename}")
+        metadata[filename] = {
+            "filename": data.filename,
+            "line": data.line,
+            "type": "Task",
+            "summary": data.todo,
+        }
+        # break
+with open("tmp/metadata.json", "w") as f:
+    json.dump(metadata, f)
+    logging.info("Written metadata to tmp/metadata.json")

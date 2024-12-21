@@ -1,0 +1,153 @@
+{
+  "remote.extensionKind": {
+    "codecov.codecov": [
+      "ui"
+    ]
+  },
+  // https://code.visualstudio.com/docs/python/testing#_run-tests-with-coverage
+  "python.experiments.optInto": [
+    "pythonTestAdapter"
+  ],
+  "githubPullRequests.experimental.chat": true,
+  "[feature]": {
+    // Disable automatic formatting for feature files to preserve Gherkin syntax and
+    // prevent breaking multi-line strings wrapped in triple quotes (""")
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "modifications"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.tabWidth": 2
+  },
+  "[python]": {
+    "editor.tabSize": 4,
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "atlascode.bitbucket.enabled": false,
+  "atlascode.jira.enabled": true,
+  "cSpell.enabledFileTypes": {
+    "feature": true
+  },
+  "cSpell.words": [
+    "Automathor",
+    "autoupdate",
+    "coderabbitai",
+    "docstrings",
+    "eitsupi",
+    "Gruntfuggly",
+    "kevinrose",
+    "njpwerner",
+    "pyproject",
+    "searchpath",
+    "wayou"
+  ],
+  "diffEditor.hideUnchangedRegions.enabled": true,
+  "editor.accessibilitySupport": "off",
+  "editor.autoIndent": "full",
+  "editor.detectIndentation": false,
+  "editor.fontFamily": "'Hack Nerd Font Mono', Consolas, 'Courier New', monospace",
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.insertSpaces": true,
+  "editor.rulers": [
+    120
+  ],
+  "editor.tabSize": 2,
+  "editor.useTabStops": false,
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/*.egg-info": true,
+    "**/.partcad": true,
+    "**/.pytest_cache": true,
+    "**/LICENSE.txt": true,
+    "**/__pycache__": true,
+    "**/apache20.svg": true,
+    ".conda": true,
+    ".git/**": true,
+    ".ocp_vscode": true,
+    ".tox": true,
+    ".venv": true,
+    "docs/build": true,
+    "partcad*/build": true,
+    "partcad*/dist": true
+  },
+  "files.trimFinalNewlines": true,
+  "git.autofetch": true,
+  "githubPullRequests.pullBranch": "never",
+  "markdown.extension.toc.omittedFromToc": {
+    ".github/README.md": [
+      "# PartCAD"
+    ]
+  },
+  "prettier.printWidth": 120,
+  "prettier.proseWrap": "always",
+  "psi-header.config": {
+    "author": "PartCAD",
+    "authorEmail": "support@partcad.org",
+    "blankLinesAfter": 1,
+    "company": "PartCAD",
+    "copyrightHolder": "PartCAD",
+    "creationDateZero": "asIs",
+    "forceToTop": true,
+    "hostname": "https://partcad.org/",
+    "license": "Apache License, Version 2.0",
+    "spacesBetweenYears": false
+  },
+  "psi-header.lang-config": [
+    {
+      "begin": "",
+      "end": "",
+      "language": "python",
+      "prefix": "# "
+    }
+  ],
+  "psi-header.templates": [
+    {
+      "language": "python",
+      "template": [
+        "",
+        "PartCAD, <<dateformat('YYYY')>>",
+        "",
+        "Author: <<author>> (<<authorEmail>>)",
+        "Created: <<date>>",
+        "",
+        "Licensed under Apache License, Version 2.0.",
+        ""
+      ]
+    }
+  ],
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.terminal.executeInFileDir": true,
+  "python.terminal.launchArgs": [],
+  "python.testing.pytestArgs": [],
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "remote.autoForwardPortsSource": "hybrid",
+  "search.exclude": {
+    "**/*.egg-info": true,
+    "**/.partcad": true,
+    "**/.pytest_cache": true,
+    "**/LICENSE.txt": true,
+    "**/__pycache__": true,
+    "**/apache20.svg": true,
+    ".conda": true,
+    ".git/**": true,
+    ".ocp_vscode": true,
+    ".tox": true,
+    ".venv": true,
+    "docs/build": true,
+    "partcad*/build": true,
+    "partcad*/dist": true
+  },
+  "terminal.integrated.fontFamily": "'Hack Nerd Font Mono', Consolas, 'Courier New', monospace",
+  "terminal.integrated.scrollback": 100000,
+  "testing.automaticallyOpenPeekView": "never",
+  "testing.followRunningTest": false,
+  "workbench.colorTheme": "GitHub Dark",
+  "testing.automaticallyOpenTestResults": "neverOpen" // prevent YAML formatter from breaking Jinja2 templates
+}
