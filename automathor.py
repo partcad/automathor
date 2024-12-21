@@ -138,7 +138,7 @@ class Match:
             context.lines.append(data)
         return context
 
-    def parse_line(self, line) -> AnnotatedLine:
+    def parse_line(self, line: str) -> AnnotatedLine:
         """Parse a line of git blame output."""
         pattern = r"(\w+)\s+(\S+)\s+\(<([^>]+)>\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4})\s+(\d+)\)\s*(.*)"
         match = re.match(pattern, line)
@@ -184,8 +184,7 @@ automathor.process_matches()
 i = 0
 metadata = {}
 os.makedirs("tmp", exist_ok=True)
-for match in automathor.matches:
-    i += 1
+for i, match in enumerate(automathor.matches, start=1):
     data = match.get_git_blame_output()
     filename = f"tmp/{i}.md"
     with open(filename, "w") as f:

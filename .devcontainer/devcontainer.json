@@ -16,7 +16,7 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {
       "installDirectlyFromGitHubRelease": true,
-      "version": "2.63.2"
+      "version": "2.64.0"
     },
     "ghcr.io/devcontainers/features/python:1": {
       "installTools": true,
