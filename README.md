@@ -4,6 +4,7 @@
 
 ## Roadmap
 
-- [ ] TODO: @alexanderilyin: Create `automathor plan` & `authomathor apply` commands.
+- [ ] TODO: @alexanderilyin: Create `automathor plan` & `automathor apply` commands.
   - Use `click`
 - Publish package to PyPi.
+- Create Dependabot like feature for `pre-commit autoupdate`.

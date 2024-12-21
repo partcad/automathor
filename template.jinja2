@@ -1,11 +1,11 @@
 - [`{{ context.filename }}:{{ context.line }}`]
 
-Added by {{ context.user() }} in [`{{ context.commit }}`] on {{ context.datetime.strftime('%d %b, %Y at %H:%M:%S')
-}}.
+Added by {{ context.user() }} in [`{{ context.commit }}`] on {{ context.datetime.strftime('%d %b, %Y at %H:%M:%S')}}.
 
 ```{{ context.language() }}
 {% for line in context.lines -%}
-{{ " >" if context.line == line.line_number else " " * 2 }} {{ line.line_number }} {{ line.source_line }}
+{%- set prefix = " >" if context.line == line.line_number else "  " -%}
+{{ prefix }} {{ line.line_number }} {{ line.source_line }}
 {% endfor -%}
 ```
 
