@@ -21,7 +21,7 @@ import json
 import logging
 import os
 import re
-import subprocess
+import subprocess  # nosec B404
 
 # 1. Make user mentions work
 # 2. Show summary table
@@ -29,6 +29,8 @@ import subprocess
 
 @dataclass
 class AnnotatedLine:
+    """Line of code with git blame info."""
+
     # 1. Convert value to full commit hash
     commit: str
     filename: str
@@ -40,6 +42,8 @@ class AnnotatedLine:
 
 @dataclass
 class Context:
+    """Context for a code line, including git blame data."""
+
     filename: str
     line: int
     commit: str
@@ -50,9 +54,11 @@ class Context:
     lines: List[AnnotatedLine]
 
     def __repr__(self):
+        """Return a string representation of the context."""
         return f"{self.filename}:{self.line}\n{self.author_email} {self.datetime}\n{self.commit}\n"
 
     def render(self):
+        """Render the context as a markdown file."""
         template_loader = jinja2.FileSystemLoader(searchpath="./")
         template_env = jinja2.Environment(loader=template_loader)  # nosec B701
         template = template_env.get_template("template.jinja2")
@@ -61,6 +67,7 @@ class Context:
         return output
 
     def user(self):
+        """Get the user for the author email."""
         if self.author_email == "ailin@partcad.org":
             return "@ailin"
         if self.author_email == "alexander@ilyin.eu":
@@ -76,6 +83,7 @@ class Context:
         raise ValueError(f"Unknown user for email: {self.author_email}")
 
     def language(self):
+        """Get the language of the file."""
         extensions = {
             ".py": "python",
             ".md": "markdown",
@@ -92,11 +100,14 @@ class Context:
 
 @dataclass
 class Match:
+    """A match for a TODO comment in a file."""
+
     file: str
     line: int
     text: str
 
     def get_git_blame_output(self) -> Context:
+        """Get git blame output for a match."""
         self.line = int(self.line)
 
         start_line = max(1, self.line - 4)
@@ -109,7 +120,7 @@ class Match:
             f"-L{start_line},{end_line}",
         ]
         logging.debug(f"RUNNING {command}")
-        result = subprocess.run(command, capture_output=True, text=True)
+        result = subprocess.run(command, capture_output=True, text=True)  # nosec B603
         if result.returncode != 0:
             raise RuntimeError(f"Command failed with error: {result.stderr}")
 
@@ -121,12 +132,14 @@ class Match:
                 context.commit = data.commit
                 context.author_email = data.author_email
                 context.datetime = data.datetime
-                context.todo = self.text.strip().lstrip("#:TODO ")
-                context.text = self.text.strip().lstrip("#:TODO ")
+                # TODO: Process comment to extract nice text for summary
+                context.todo = self.text
+                context.text = self.text
             context.lines.append(data)
         return context
 
     def parse_line(self, line) -> AnnotatedLine:
+        """Parse a line of git blame output."""
         pattern = r"(\w+)\s+(\S+)\s+\(<([^>]+)>\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4})\s+(\d+)\)\s*(.*)"
         match = re.match(pattern, line)
         pattern_two = r"(\w+)\s+\(<([^>]+)>\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4})\s+(\d+)\)\s*(.*)"
@@ -145,17 +158,20 @@ class Match:
 
 @dataclass
 class Automathor:
+    """Find TODO comments and generate context."""
 
     grep: List[str] = field(default_factory=list)
     matches: List[Match] = field(default_factory=list)
 
     def run_git_grep(self) -> None:
+        """Run git grep to find TODO comments."""
         command = ["git", "grep", "-n", "TODO"]
         logging.debug(f"Running command: {' '.join(command)}")
-        result = subprocess.run(command, stdout=subprocess.PIPE, text=True)
+        result = subprocess.run(command, stdout=subprocess.PIPE, text=True)  # nosec B603
         self.grep = result.stdout.strip().split("\n")
 
     def process_matches(self) -> None:
+        """Process the matches from git grep."""
         for line in self.grep:
             self.matches.append(Match(*line.split(":", 2)))
 
@@ -184,4 +200,4 @@ for match in automathor.matches:
         # break
 with open("tmp/metadata.json", "w") as f:
     json.dump(metadata, f)
-    logging.info(f"Written metadata to tmp/metadata.json")
+    logging.info("Written metadata to tmp/metadata.json")
