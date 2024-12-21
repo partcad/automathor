@@ -17,12 +17,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added support for JIRA issues creation.
 - Added support for subtasks.
 - Added support for using `pre-commit` to automatically update external dependencies.
+- Added jinja2 dependency.
 
 ### Changed
 
 - Updated `submit.py` to handle exceptions gracefully.
 - Updated `template.jinja2` to improve formatting.
 - Improved `submit.py` for better readability and robustness.
+- Updated poetry lock file for new jinja2 dependency.
 
 ### Fixed
 

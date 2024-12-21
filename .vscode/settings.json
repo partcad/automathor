@@ -34,7 +34,13 @@
     "autoupdate",
     "coderabbitai",
     "docstrings",
-    "pyproject"
+    "eitsupi",
+    "Gruntfuggly",
+    "kevinrose",
+    "njpwerner",
+    "pyproject",
+    "searchpath",
+    "wayou"
   ],
   "diffEditor.hideUnchangedRegions.enabled": true,
   "editor.accessibilitySupport": "off",

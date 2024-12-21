@@ -1,11 +1,27 @@
-import os
-import subprocess
-import re
-from dataclasses import dataclass
+"""
+Annotates code lines with git blame info, renders templates, and processes TODO comments.
+
+Classes:
+  AnnotatedLine: Line of code with git blame info.
+  Context: Context for a code line, including git blame data.
+  Match: TODO comment match with methods to get git blame output.
+  Automathor: Finds TODO comments and generates annotated context.
+
+Functions:
+  run_git_grep: Finds TODO comments using git grep.
+  process_matches: Generates annotated context for TODO matches.
+
+"""
+
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
-import logging
+import jinja2
 import json
+import logging
+import os
+import re
+import subprocess
 
 # 1. Make user mentions work
 # 2. Show summary table
@@ -38,7 +54,7 @@ class Context:
 
     def render(self):
         template_loader = jinja2.FileSystemLoader(searchpath="./")
-        template_env = jinja2.Environment(loader=template_loader)
+        template_env = jinja2.Environment(loader=template_loader)  # nosec B701
         template = template_env.get_template("template.jinja2")
 
         output = template.render(context=self)
@@ -74,11 +90,6 @@ class Context:
         raise ValueError(f"Unknown language for file: {self.filename}")
 
 
-from dataclasses import dataclass, field
-import subprocess
-import jinja2
-
-
 @dataclass
 class Match:
     file: str
@@ -90,9 +101,15 @@ class Match:
 
         start_line = max(1, self.line - 4)
         end_line = self.line + 4
-        command = f"git blame --show-email {self.file} | sed -n '{start_line},{end_line}p'"
+        command = [
+            "git",
+            "blame",
+            "--show-email",
+            self.file,
+            f"-L{start_line},{end_line}",
+        ]
         logging.debug(f"RUNNING {command}")
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(command, capture_output=True, text=True)
         if result.returncode != 0:
             raise RuntimeError(f"Command failed with error: {result.stderr}")
 
