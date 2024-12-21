@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated automathor.py to use jinja2 autoescape for security.
 - Updated Documentation
 - Updated poetry lock file for new jinja2 dependency.
+- Updated `postCreateCommand` to make it more universal.
 
 ### Fixed
 
