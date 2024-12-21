@@ -76,6 +76,7 @@
         "wayou.vscode-todo-highlight",
         // Atlassian Integration
         "Atlassian.atlascode",
+        // Code Coverage
         "codecov.codecov",
         "ryanluker.vscode-coverage-gutters"
       ]

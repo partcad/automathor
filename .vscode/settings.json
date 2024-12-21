@@ -10,7 +10,8 @@
   ],
   "githubPullRequests.experimental.chat": true,
   "[feature]": {
-    // Automatic formatting break pre-formatted multi-line strings wrapped in """ (triple quotes)
+    // Disable automatic formatting for feature files to preserve Gherkin syntax and
+    // prevent breaking multi-line strings wrapped in triple quotes (""")
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "modifications"
   },
@@ -118,9 +119,6 @@
         ""
       ]
     }
-  ],
-  "python.analysis.extraPaths": [
-    "./partcad/src"
   ],
   "python.envFile": "${workspaceFolder}/.env",
   "python.terminal.activateEnvInCurrentTerminal": true,

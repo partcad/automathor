@@ -23,15 +23,15 @@ import os
 import re
 import subprocess  # nosec B404
 
-# 1. Make user mentions work
-# 2. Show summary table
+# TODO: @alexanderilyin Make user mentions work
+# TODO: @alexanderilyin Show summary table
 
 
 @dataclass
 class AnnotatedLine:
     """Line of code with git blame info."""
 
-    # 1. Convert value to full commit hash
+    # TODO: @alexanderilyin Convert value to full commit hash
     commit: str
     filename: str
     author_email: str
@@ -57,10 +57,10 @@ class Context:
         """Return a string representation of the context."""
         return f"{self.filename}:{self.line}\n{self.author_email} {self.datetime}\n{self.commit}\n"
 
-    def render(self):
+    def render(self) -> str:
         """Render the context as a markdown file."""
         template_loader = jinja2.FileSystemLoader(searchpath="./")
-        template_env = jinja2.Environment(loader=template_loader)  # nosec B701
+        template_env = jinja2.Environment(loader=template_loader, autoescape=True)
         template = template_env.get_template("template.jinja2")
 
         output = template.render(context=self)
@@ -68,6 +68,7 @@ class Context:
 
     def user(self):
         """Get the user for the author email."""
+        # TODO: @alexanderilyin: load users mapping from a file
         if self.author_email == "ailin@partcad.org":
             return "@ailin"
         if self.author_email == "alexander@ilyin.eu":
@@ -84,6 +85,7 @@ class Context:
 
     def language(self):
         """Get the language of the file."""
+        # TODO: @alexanderilyin: load language mapping from a file
         extensions = {
             ".py": "python",
             ".md": "markdown",
@@ -132,7 +134,7 @@ class Match:
                 context.commit = data.commit
                 context.author_email = data.author_email
                 context.datetime = data.datetime
-                # TODO: Process comment to extract nice text for summary
+                # TODO: @alexanderilyin: Process comment to extract nice text for summary
                 context.todo = self.text
                 context.text = self.text
             context.lines.append(data)
@@ -148,12 +150,13 @@ class Match:
             commit, filename, author_email, date_str, line_number, source_line = match.groups()
             date_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %z")
             return AnnotatedLine(commit, filename, author_email, date_time, int(line_number), source_line)
-        elif match_two:
+
+        if match_two:
             commit, author_email, date_str, line_number, source_line = match_two.groups()
             date_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %z")
             return AnnotatedLine(commit, self.file, author_email, date_time, int(line_number), source_line)
-        else:
-            raise ValueError(f"Line does not match expected format: {line}")
+
+        raise ValueError(f"Line does not match expected format: {line}")
 
 
 @dataclass
